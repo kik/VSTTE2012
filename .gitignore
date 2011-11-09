@@ -1,2 +1,6 @@
 kik/tools/ynot/ynot-20110710.tgz
 kik/tools/ynot/ynot
+*.vo
+*.v.d
+*.glob
+*.bak
