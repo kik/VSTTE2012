@@ -1,4 +1,7 @@
 Require Import Ynot.
+Require Import Basis.
+Require Import String.
+
 Local Open Scope hprop_scope.
 
 Require Import List Arith Tree ImList.
@@ -166,3 +169,47 @@ Proof.
   rewrite <-(map_id (depths t)).
   apply map_ext; auto.
 Qed.
+
+Local Open Scope string_scope.
+
+Definition test_1 : STsep (__) (fun _ : unit => ??).
+Proof.
+  intros.
+  refine (
+    s <- ImList.new nat;
+    ImList.push s 2 (inhabits nil);;
+    ImList.push s 3 (inhabits (2 :: nil));;
+    ImList.push s 3 (inhabits (3 :: 2 :: nil));;
+    ImList.push s 1 (inhabits (3 :: 3 ::2 :: nil));;
+    r1 <- build s (inhabits (1 :: 3 :: 3 :: 2 :: nil));
+    match r1 with
+      | Some (Node Leaf (Node (Node Leaf Leaf) Leaf)) =>
+        printStringLn "First test passed."
+      | _ =>
+        printStringLn "First test failed."
+    end <@> ??;;
+    {{Return tt}}
+  ); sep fail auto; try apply himp_any_conc.
+Qed.
+
+Definition test_2 : STsep (__) (fun _ : unit => ??).
+Proof.
+  intros.
+  refine (
+    s <- ImList.new nat;
+    ImList.push s 2 (inhabits nil);;
+    ImList.push s 2 (inhabits (2 :: nil));;
+    ImList.push s 3 (inhabits (2 :: 2 :: nil));;
+    ImList.push s 1 (inhabits (3 :: 2 ::2 :: nil));;
+    r2 <- build s (inhabits (1 :: 3 :: 2 :: 2 :: nil));
+    match r2 with
+      | None =>
+        printStringLn "Second test passed."
+      | _ =>
+        printStringLn "Second test failed."
+    end <@> ?? ;;
+    {{Return tt}}
+  ); sep fail auto; try apply himp_any_conc.
+Qed.
+
+
