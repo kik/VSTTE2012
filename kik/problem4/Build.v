@@ -6,8 +6,6 @@ Require Import List Arith Tree ImList.
 Open Scope stsepi_scope.
 Unset Automatic Introduction.
 
-Definition X := 1 = 1.
-
 Definition build_rec (d : nat) (s : ImList.t nat) (ls : [list nat]) :
   STsep (ls ~~ ImList.rep s ls)
   (fun ot : option (Tree * [list nat]) => ls ~~
@@ -168,4 +166,3 @@ Proof.
   rewrite <-(map_id (depths t)).
   apply map_ext; auto.
 Qed.
-

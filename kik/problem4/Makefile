@@ -101,7 +101,9 @@ PP:=-pp "$(CAMLP4BIN)$(CAMLP4)o -I $(CAMLLIB) -I . $(COQSRCLIBS) $(CAMLP4EXTEND)
 ###################################
 
 VFILES:=Tree.v\
-  ImList.v
+  ImList.v\
+  Build.v\
+  Extract.v
 VOFILES:=$(VFILES:.v=.vo)
 VOFILES0:=$(filter-out ../tools/ynot/ynot/src/coq/% ../tools/ynot/ynot/examples/Data/%,$(VOFILES))
 GLOBFILES:=$(VFILES:.v=.glob)
