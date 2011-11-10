@@ -75,6 +75,23 @@ Proof.
   constructor; apply ofs_depths_1.
 Qed.
 
+Lemma ofs_depths_cons :
+  forall d t,
+    ofs_depths d t <> nil.
+Proof.
+  intros d t.
+  revert d; induction t.
+    unfold ofs_depths, incrl; simpl; congruence.
+  intros d Heq.
+  generalize (ofs_depths_1 d (Node t1 t2)).
+  rewrite Heq; clear Heq; intro Hofs.
+  inversion Hofs; subst.
+  destruct (app_eq_nil _ _ H1).
+  subst.
+  apply ofs_depths_2 in H3.
+  eapply IHt2; eauto.
+Qed.
+
 Lemma ofs_depths_le :
   forall d t n, In n (ofs_depths d t) -> d <= n.
 Proof.
@@ -297,9 +314,3 @@ Proof.
   exists tr; exists nsr; exists lsr'; split; auto.
   apply ofs_depths_2; auto.
 Qed.
-
-Inductive prefix_ofs_depths (d : nat) (t : Tree) : list nat -> Prop :=
-| prefix_ofs_depths_app :
-  forall nsl nsr,
-    ofs_depths d t = nsl ->
-    prefix_ofs_depths d t (nsl ++ nsr).
