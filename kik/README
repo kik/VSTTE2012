@@ -1,0 +1,123 @@
+= team members =
+KIKUCHI Masashi kik314@gmail.com
+
+= description =
+
+I solved problem4 with Coq 8.3pl2 and Ynot library.
+
+File 'Tree.v' defines tree data type and contains proofs of some properties.
+File 'ImList.v' defines certified imperative list type using Ynot library.
+File 'Build.v' contains implementation of 'build' procedure.
+
+== Tree data type ==
+
+My definition of tree is straightfoward one.
+Function 'depths' returns list of leaf depths.
+These are most important because statement of properties uses there.
+
+The rest part of 'Tree.v' contains lemmas used to prove properties.
+
+== Imperative list ==
+
+This is a small modification of Stack.v in Ynot examples.
+
+== build and build_rec == 
+
+'build' and 'build_rec' are implemented as monad.
+
+type of 'build' is:
+
+  ImList.t -> [list nat] -> ST (option Tree)
+
+None is used to denote 'fail' and Some t is returned on success.
+'[list nat]' is a ghost state argument and is not extracted.
+I defined this monad in Ynot style: Write monad properties first,
+implement it with 'refine' tactic and prove there.
+
+precondition of 'build s ls' is:
+
+  (ls ~~ ImList.rep s ls)
+
+This means 's' is a ImList object and its contents are same as 'ls'.
+
+postcondition is:
+
+  (fun ot : option Tree => ls ~~
+    match ot with
+      | None =>
+        Exists ls' :@ list nat,
+          ImList.rep s ls' * [forall t, depths t <> ls]
+      | Some t =>
+        ImList.rep s nil * [depths t = ls]
+    end)
+
+If None is returned then the first clause is satisfied:
+  there exists some list 'ls'' such that contents of 's' are them and
+  there is no tree which depths matches 'ls'.
+else 'Some t' is returned:
+  contents of 's' is empty list and depths of t matches 'ls'.
+
+implementation of 'build' is:
+
+  refine (to <- build_rec 0 s ls;
+    match to with
+      | None => {{Return None}}
+      | Some (t, ls') =>
+        ho <- ImList.head s ls' <@>
+          (ls ~~ ls' ~~ Exists lsl :@ list nat, [ofs_depths 0 t = lsl /\ ls = lsl ++ ls']);
+        match ho with
+          | Some _ => {{Return None}}
+          | None => {{Return (Some t)}}
+        end
+    end).
+
+This is almost same as problem statement.
+
+'build_rec' is written in same manner.
+If it returns None:
+  there is no tree such that its offseted depths matches some prefix of an input list.
+Else it returns 'Some t':
+  the offseted depths of 't' matches some prefix of an input list.
+
+== Proof detail ==
+
+Function 'ofs_depths' is like 'depths' but have offset.
+This function is inverse of 'build_rec'.
+
+Lemma 'ofs_depths_Node_E' is used to prove soundness.
+
+Prop 'is_prefix' is a predicate whether offseted depths of tree matches some prefix of list.
+Most important lemma to prove completeness is 'prefix_unique'.  It states 'is_prefix' has
+uniqueness about tree parameter.
+
+Three lemmas 'not_prefix_1', 'not_prefix_2' and 'not_prefix_3' are correspond with
+three conditions that 'build_rec' fails:
+  1. h < d
+  2. l <- build_rec(d+1, s)
+  3. r <- build_rec(d+1, s)
+
+Proofs in separation logic part are almost automated thanks to Ynot library.
+
+== Termination property ==
+
+Termination property is not proved because there is no definition in library when monad is termniate.
+Proof is easy because parameter 'd' is increasing and has upper limit 'max s'.
+
+== Harness ==
+
+Monads cannot executed in Coq environment.
+So test haness are extracted to OCaml code and executed.
+
+= compilation and execution =
+
+Coq 8.3pl2 must be installed before.
+
+'tools/ynot' directory contains 'setup.sh'.
+It download ynot library and build.
+
+'problem4' directory contains all Coq code and OCaml startup code.
+'make' compiles Coq code and 'make build' compiles all.
+'main.native' and 'main.byte' are a result executable.
+It runs test harness.
+
+
