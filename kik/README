@@ -13,7 +13,7 @@ File 'Build.v' contains implementation of 'build' procedure.
 
 My definition of tree is straightfoward one.
 Function 'depths' returns list of leaf depths.
-These are most important because statement of properties uses there.
+These are most important because statement of properties uses their.
 
 The rest part of 'Tree.v' contains lemmas used to prove properties.
 
@@ -32,7 +32,7 @@ type of 'build' is:
 None is used to denote 'fail' and Some t is returned on success.
 '[list nat]' is a ghost state argument and is not extracted.
 I defined this monad in Ynot style: Write monad properties first,
-implement it with 'refine' tactic and prove there.
+implement it with 'refine' tactic and prove their.
 
 precondition of 'build s ls' is:
 
@@ -53,9 +53,9 @@ postcondition is:
 
 If None is returned then the first clause is satisfied:
   there exists some list 'ls'' such that contents of 's' are them and
-  there is no tree which depths matches 'ls'.
+  there is no tree which depths matches 'ls' (Completeness).
 else 'Some t' is returned:
-  contents of 's' is empty list and depths of t matches 'ls'.
+  contents of 's' is empty list and depths of t matches 'ls' (Soundness).
 
 implementation of 'build' is:
 
