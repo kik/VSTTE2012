@@ -4,3 +4,11 @@ kik/tools/ynot/ynot
 *.v.d
 *.glob
 *.bak
+.depend
+.extract
+*.cmi
+*.cmo
+*.cmx
+*.o
+*.byte
+*.native
